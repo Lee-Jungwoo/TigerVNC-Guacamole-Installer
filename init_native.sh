@@ -20,12 +20,19 @@ startxfce4
 sudo chmod 777 /home/ubuntu/.vnc/xstartup
 
 
-# hostname
+# hostname & email address
 sudo mkdir /miscFiles
 sudo chown -R ubuntu:ubuntu /miscFiles
-printf '이거' | sudo tee /miscFiles/hostname > /dev/null
+
+read -p "Type your hostname in the form of [your.hostname] >
+" hostname
+read -p "Type your email address in the form of [abcd@ee.ff] >
+" email
+
+echo hostname | sudo tee /miscFiles/hostname > /dev/null
+echo email | sudo tee /miscFiles/email > /dev/null
+
 sudo chmod 644 /miscFiles/hostname
-printf '이메일주소' | sudo tee /miscFiles/email > /dev/null
 sudo chmod 644 /miscFiles/email
 
 
