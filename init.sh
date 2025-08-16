@@ -13,7 +13,7 @@ echo $email | sudo tee /miscFiles/email > /dev/null
 sudo chmod 644 /miscFiles/hostname
 sudo chmod 644 /miscFiles/email
 
-print "successfully saved your hostname and email address."
+printf "successfully saved your hostname and email address."
 
 
 
