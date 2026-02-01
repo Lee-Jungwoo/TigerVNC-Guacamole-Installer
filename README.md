@@ -31,8 +31,7 @@ This comprehensive setup script performs the following operations:
 ## Requirements
 
 - **Operating System**: Ubuntu 22.04 LTS (fresh installation)
-- **System Access**: Root/sudo privileges required
-- **Network**: Internet connection for package downloads and certificate generation
+- **System Access**: Sudo required
 - **Domain/Hostname**: Valid domain name or hostname for SSL certificate generation
 - **Email Address**: Valid email address for Let's Encrypt certificate registration
 
@@ -41,7 +40,7 @@ This comprehensive setup script performs the following operations:
 ### Installation Steps
 1. **Download the script**:
    ```bash
-   wget -L https://raw.github.com/lee-jungwoo/Guacamole-setup/main/init_native.sh
+   wget -L https://raw.github.com/lee-jungwoo/Guacamole-setup/main/init.sh
    # or clone the repository
    git clone https://github.com/Lee-Jungwoo/Guacamole-setup.git
    cd Guacamole-setup
@@ -49,12 +48,12 @@ This comprehensive setup script performs the following operations:
 
 2. **Make the script executable**:
    ```bash
-   (sudo) chmod +x init_native.sh
+   (sudo) chmod +x init.sh
    ```
 
 3. **Run the installation script**:
    ```bash
-   ./init_native.sh
+   ./init.sh
    ```
 
 4. **Enter your hostname and valid email**
