@@ -31,8 +31,7 @@ This comprehensive setup script performs the following operations:
 ## Requirements
 
 - **Operating System**: Ubuntu 22.04 LTS (fresh installation)
-- **System Access**: Root/sudo privileges required
-- **Network**: Internet connection for package downloads and certificate generation
+- **System Access**: Sudo required
 - **Domain/Hostname**: Valid domain name or hostname for SSL certificate generation
 - **Email Address**: Valid email address for Let's Encrypt certificate registration
 
