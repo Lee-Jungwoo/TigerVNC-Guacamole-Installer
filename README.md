@@ -48,7 +48,7 @@ This comprehensive setup script performs the following operations:
 
 2. **Make the script executable**:
    ```bash
-   (sudo) chmod +x init_native.sh
+   (sudo) chmod +x init.sh
    ```
 
 3. **Run the installation script**:
