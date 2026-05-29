@@ -1,148 +1,186 @@
 # Guacamole VNC Setup Script
 
-This script automatically sets up and deploys a complete remote desktop environment using Apache Guacamole, TigerVNC Server, and XFCE desktop environment on Ubuntu.
+Ubuntu 22.04에서 Apache Guacamole, TigerVNC, XFCE 기반 원격 데스크톱 환경을 자동으로 설치하는 스크립트입니다.
 
-## What This Script Does
+## Features
 
-This comprehensive setup script performs the following operations:
-
-### Core Services Installation & Configuration
-- **Apache Guacamole**: Installs and configures Guacamole server (1.5.5) for web-based remote desktop access
-- **TigerVNC Server**: Sets up VNC server for remote desktop connections
-- **XFCE Desktop Environment**: Installs lightweight desktop environment optimized for remote access
-- **Nginx Web Server**: Configures reverse proxy to serve Guacamole web client with SSL support
-- **MariaDB Database**: Sets up database backend for Guacamole user management and connection storage
-
-### Security & SSL Configuration
-- **SSL/TLS Encryption**: Automatically configures HTTPS using Let's Encrypt certificates via Certbot
-- **Firewall Configuration**: Opens necessary ports (80, 443) for web access
-- **Database Security**: Secures MariaDB installation with default security settings
-
-### Development Environment
-- **Visual Studio Code**: Installs VS Code with desktop shortcut
-- **Firefox Browser**: Installs Firefox browser with desktop shortcut and snap workarounds
-- **Korean Language Support**: Installs Korean fonts (Nanum, D2Coding) and input method (ibus-hangul)
-
-### User Experience Enhancements
-- **Desktop Shortcuts**: Creates desktop shortcuts for Firefox and VS Code
-- **Auto-startup Scripts**: Configures automatic execution of maintenance tasks on login
-- **VNC Session Optimization**: Sets up proper X11 forwarding and session management
+* Apache Guacamole 1.5.5 설치
+* TigerVNC Server 설정
+* XFCE Desktop 설치
+* Nginx reverse proxy 설정
+* MariaDB 기반 Guacamole DB 설정
+* Let's Encrypt SSL 인증서 발급
+* Firefox, VS Code 설치
+* 한글 폰트 및 한글 입력기 설치
+* Firefox, VS Code 데스크톱 바로가기 생성
 
 ## Requirements
 
-- **Operating System**: Ubuntu 22.04 LTS (fresh installation)
-- **System Access**: Sudo required
-- **Domain/Hostname**: Valid domain name or hostname for SSL certificate generation
-- **Email Address**: Valid email address for Let's Encrypt certificate registration
+* Ubuntu 22.04 LTS
+* sudo 권한
+* 서버에 연결된 도메인 또는 hostname
+* Let's Encrypt 인증서 발급용 이메일
 
-## How to Use This Script
+## Installation
 
-### Installation Steps
-1. **Download the script**:
-   ```bash
-   wget -L https://raw.github.com/lee-jungwoo/Guacamole-setup/main/init.sh
-   # or clone the repository
-   git clone https://github.com/Lee-Jungwoo/Guacamole-setup.git
-   cd Guacamole-setup
-   ```
+### 1. Download
 
-2. **Make the script executable**:
-   ```bash
-   (sudo) chmod +x init.sh
-   ```
-
-3. **Run the installation script**:
-   ```bash
-   ./init.sh
-   ```
-
-4. **Enter your hostname and valid email**
-   - Requesting SSL certificate with certbot requires hostname and email.
-
-5. **During Installation:**
-   - The script will automatically handle most user prompts
-   - Some installations may require brief user interaction, depending on the environment
-   - MySQL root password is set to `1234`
-   - VNC password is set to `123456`
-   
-
-### Post-Installation Access
-
-#### Web Access (Recommended)
-- **URL**: `https://[your-domain]/guacamole` (or `http://[your-domain]/guacamole` which redirects to HTTPS)
-- **Default Credentials**:
-  - Username: `guacadmin`
-  - Password: `guacadmin` (change this to your own right after first login)
-
-## Default Configuration
-
-### MariaDB Database Settings
-- **Database Name**: `guac_db`
-- **Database User**: `guac_user`
-- **Database Password**: `1234`
-- **MySQL Root Password**: `1234`
-
-### VNC Configuration
-- **Display**: `:1` (port 5901)
-- **Password**: `123456`
-- **Desktop Environment**: XFCE4
-
-### Network Configuration
-- **HTTP Port**: 80 (redirects to HTTPS)
-- **HTTPS Port**: 443
-- **Guacamole server**: 8080 (internal)
-- **VNC Port**: 5901 (localhost only)
-
-## Troubleshooting
-
-### Common Issues
-1. **Certificate Generation Fails**: Ensure your domain points to the server's IP address
-2. **VNC Connection Issues**: Check if VNC server is running with `vncserver --list`
-3. **Web Interface Not Loading**: Verify nginx and tomcat9 services are running<br>
-`sudo systemctl status nginx tomcat9 mysql guacd`<br>
-stop and restart them if they are halt.<br>
-`sudo systemctl stop nginx tomcat9 guacd mysql` <br>
-`sudo systemctl stop nginx tomcat9 guacd mysql`
-
-4. **Database Connection Errors**: Check MariaDB service status and credentials
-
-### Service Management
 ```bash
-# Check service status
+wget -L https://raw.github.com/lee-jungwoo/Guacamole-setup/main/init.sh
+```
+
+또는 저장소를 clone합니다.
+
+```bash
+git clone https://github.com/Lee-Jungwoo/Guacamole-setup.git
+cd Guacamole-setup
+```
+
+### 2. Make executable
+
+```bash
+chmod +x init.sh
+```
+
+필요하면 `sudo`를 사용합니다.
+
+```bash
+sudo chmod +x init.sh
+```
+
+### 3. Run
+
+```bash
+./init.sh
+```
+
+설치 중 hostname과 이메일을 입력합니다.
+
+## Access
+
+설치가 끝나면 아래 주소로 접속합니다.
+
+```text
+https://[your-domain]/guacamole
+```
+
+기본 계정은 다음과 같습니다.
+
+```text
+Username: guacadmin
+Password: guacadmin
+```
+
+첫 로그인 후 비밀번호를 변경하세요.
+
+## Default Settings
+
+### MariaDB
+
+```text
+Database: guac_db
+User: guac_user
+Password: 1234
+Root password: 1234
+```
+
+### VNC
+
+```text
+Display: :1
+Port: 5901
+Password: 123456
+Desktop: XFCE4
+```
+
+### Network
+
+```text
+HTTP: 80
+HTTPS: 443
+Guacamole: 8080
+VNC: 5901
+```
+
+VNC 포트는 localhost 연결을 기준으로 사용합니다.
+
+## Service Management
+
+서비스 상태 확인:
+
+```bash
 sudo systemctl status nginx guacd tomcat9 mysql
+```
 
-# Restart services
+서비스 재시작:
+
+```bash
 sudo systemctl restart nginx guacd tomcat9 mysql
+```
 
-# Check VNC server
+VNC 서버 확인:
+
+```bash
 tigervncserver -list
 ```
 
-### Log Files
-- **Nginx**: `/var/log/nginx/`
-- **Tomcat**: `/var/log/tomcat9/`
-- **Guacamole**: `/var/log/tomcat9/catalina.out`
-- **MySQL**: `/var/log/mysql/`
+## Troubleshooting
+
+### SSL certificate fails
+
+도메인이 서버 IP를 가리키는지 확인합니다.
+
+### VNC does not connect
+
+VNC 서버가 실행 중인지 확인합니다.
+
+```bash
+tigervncserver -list
+```
+
+### Web page does not load
+
+Nginx, Tomcat, Guacamole, MySQL 상태를 확인합니다.
+
+```bash
+sudo systemctl status nginx tomcat9 guacd mysql
+```
+
+필요하면 재시작합니다.
+
+```bash
+sudo systemctl restart nginx tomcat9 guacd mysql
+```
+
+### Database connection error
+
+MariaDB가 실행 중인지 확인합니다.
+
+```bash
+sudo systemctl status mysql
+```
+
+## Logs
+
+```text
+Nginx: /var/log/nginx/
+Tomcat: /var/log/tomcat9/
+Guacamole: /var/log/tomcat9/catalina.out
+MySQL: /var/log/mysql/
+```
 
 ## Security Notes
 
-⚠️ **Important Security Considerations**:
-- Change default passwords immediately after installation
-- The script removes the password for the `ubuntu` user account
-- Default database passwords are weak and should be changed if needed
-- Consider implementing additional firewall rules for production use
-- SSL certificates are automatically renewed by certbot
+* 기본 비밀번호를 설치 후 변경하세요.
+* MySQL root password와 VNC password는 기본값이 약합니다.
+* 스크립트는 `ubuntu` 사용자 비밀번호를 제거합니다.
+* 운영 환경에서는 방화벽, 계정, DB 비밀번호 설정을 다시 검토하세요.
+* Certbot 인증서는 자동 갱신됩니다.
 
-## Support
+## Note
 
-For issues or questions:
-- Check the troubleshooting section above
-- Review log files for error messages
-- Ensure all requirements are met
-- Verify network connectivity and DNS resolution
+이 스크립트는 개발 및 테스트 환경을 기준으로 작성되었습니다. 운영 환경에서 사용하려면 보안 설정을 수정하세요.
 
----
+## Disclaimer
 
-**Note**: This script is designed for development and testing environments. For production deployments, review and modify security settings, passwords, and configurations according to your organization's security policies.
-
-**Disclaimer**: The author of this script assumes no responsibility for any legal or technical issues arising from its use.
+사용 중 발생하는 법적, 기술적 문제에 대한 책임은 사용자에게 있습니다.
