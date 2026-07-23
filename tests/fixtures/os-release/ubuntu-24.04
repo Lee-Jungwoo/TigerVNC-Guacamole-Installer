@@ -1,0 +1,7 @@
+NAME="Ubuntu"
+VERSION="24.04.2 LTS (Noble Numbat)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 24.04.2 LTS"
+VERSION_ID="24.04"
+VERSION_CODENAME=noble

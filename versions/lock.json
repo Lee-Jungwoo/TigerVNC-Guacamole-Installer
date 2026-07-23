@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "guacamole": {
+    "version": "1.6.0",
+    "release_date": "2025-06-22",
+    "release_page": "https://guacamole.apache.org/releases/1.6.0/",
+    "manual": "https://guacamole.apache.org/doc/1.6.0/gug/",
+    "keys_url": "https://downloads.apache.org/guacamole/KEYS",
+    "artifacts": {
+      "server_source": {
+        "filename": "guacamole-server-1.6.0.tar.gz",
+        "url": "https://downloads.apache.org/guacamole/1.6.0/source/guacamole-server-1.6.0.tar.gz",
+        "signature_url": "https://downloads.apache.org/guacamole/1.6.0/source/guacamole-server-1.6.0.tar.gz.asc",
+        "sha256_manifest_url": "https://downloads.apache.org/guacamole/1.6.0/source/guacamole-server-1.6.0.tar.gz.sha256",
+        "sha256": "8bc45675da96d7b6f39728160181e3d4ff3c08f460f6d26de5805b642bf13f2b"
+      },
+      "webapp": {
+        "filename": "guacamole-1.6.0.war",
+        "url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-1.6.0.war",
+        "signature_url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-1.6.0.war.asc",
+        "sha256_manifest_url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-1.6.0.war.sha256",
+        "sha256": "b41ceb1e2df010b54db563e0b00edb8d5fe9f073c6168462e4c978df0fc6e716"
+      },
+      "jdbc_auth": {
+        "filename": "guacamole-auth-jdbc-1.6.0.tar.gz",
+        "url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-auth-jdbc-1.6.0.tar.gz",
+        "signature_url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-auth-jdbc-1.6.0.tar.gz.asc",
+        "sha256_manifest_url": "https://downloads.apache.org/guacamole/1.6.0/binary/guacamole-auth-jdbc-1.6.0.tar.gz.sha256",
+        "sha256": "97bc5fd3d67d25c0e98a475d1dfd308a037859f549fac47171c723b7a7039366"
+      }
+    },
+    "container_images": {
+      "webapp": {
+        "reference": "docker.io/guacamole/guacamole:1.6.0",
+        "catalog_url": "https://hub.docker.com/r/guacamole/guacamole/tags?name=1.6.0",
+        "digest_locked": false,
+        "verification_strategy": "resolve the platform-specific registry manifest digest before apply, record it in installer state, and reuse that digest on rerun"
+      },
+      "guacd": {
+        "reference": "docker.io/guacamole/guacd:1.6.0",
+        "catalog_url": "https://hub.docker.com/r/guacamole/guacd/tags?name=1.6.0",
+        "digest_locked": false,
+        "verification_strategy": "resolve the platform-specific registry manifest digest before apply, record it in installer state, and reuse that digest on rerun"
+      },
+      "postgresql": {
+        "reference": "docker.io/library/postgres:16-alpine",
+        "catalog_url": "https://hub.docker.com/_/postgres",
+        "digest_locked": false,
+        "verification_strategy": "resolve the platform-specific registry manifest digest before apply, record it in installer state, and reuse that digest on rerun"
+      }
+    }
+  },
+  "verification": {
+    "required": true,
+    "strategy": "apache-openpgp-signature-and-sha256-sidecar",
+    "embedded_checksums": true,
+    "failure_policy": "fail-closed",
+    "steps": [
+      "Download the artifact, detached .asc signature, .sha256 manifest, and Apache Guacamole KEYS over HTTPS into a private temporary directory.",
+      "Verify that the manifest filename and checksum exactly match this reviewed lock, then verify the downloaded artifact against that SHA-256 digest.",
+      "Import KEYS into a temporary isolated keyring and verify the detached OpenPGP signature; do not use a public keyserver during installation.",
+      "Review and pin release-manager fingerprints out of band before unattended production use.",
+      "Delete temporary keyrings and artifacts on failure, and never continue after a verification error."
+    ],
+    "note": "Artifact checksums are copied from the official Apache 1.6.0 SHA-256 manifests. No OCI digest is embedded because platform-specific image digests were not independently verified; they may be pinned only by a reviewed release update."
+  }
+}

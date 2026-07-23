@@ -1,0 +1,1614 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tiger-vnc-guacamole-installer:schema:config:1",
+  "title": "TigerVNC Guacamole Installer configuration v1",
+  "description": "Strict configuration contract for native, hybrid, VNC-only, and externally managed deployments.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "target",
+    "desktop",
+    "vnc",
+    "guacamole",
+    "database",
+    "proxy",
+    "tls",
+    "firewall",
+    "features",
+    "custom"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1
+    },
+    "profile": {
+      "type": "string",
+      "enum": [
+        "hybrid",
+        "native",
+        "vnc-only",
+        "external"
+      ],
+      "default": "hybrid",
+      "description": "hybrid installs desktop/VNC natively and Guacamole in containers; external integrates local VNC with an externally managed Guacamole stack."
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "distribution",
+        "os_family",
+        "architecture",
+        "package_manager",
+        "init_system",
+        "container_runtime",
+        "desktop_user",
+        "create_user"
+      ],
+      "properties": {
+        "mode": {
+          "const": "local",
+          "default": "local"
+        },
+        "distribution": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "debian",
+            "ubuntu",
+            "linuxmint",
+            "fedora",
+            "rhel",
+            "rocky",
+            "almalinux",
+            "centos-stream",
+            "opensuse-leap",
+            "opensuse-tumbleweed",
+            "sles",
+            "arch",
+            "manjaro",
+            "alpine",
+            "custom"
+          ],
+          "default": "auto"
+        },
+        "os_family": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "debian",
+            "rhel",
+            "suse",
+            "arch",
+            "alpine",
+            "custom"
+          ],
+          "default": "auto"
+        },
+        "architecture": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "amd64",
+            "arm64",
+            "armhf",
+            "ppc64le",
+            "s390x",
+            "riscv64"
+          ],
+          "default": "auto"
+        },
+        "package_manager": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "apt",
+            "dnf",
+            "yum",
+            "zypper",
+            "pacman",
+            "apk",
+            "custom"
+          ],
+          "default": "auto"
+        },
+        "init_system": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "systemd",
+            "openrc",
+            "runit",
+            "s6",
+            "none",
+            "custom"
+          ],
+          "default": "auto"
+        },
+        "container_runtime": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "docker",
+            "podman",
+            "none"
+          ],
+          "default": "auto"
+        },
+        "install_root": {
+          "$ref": "#/$defs/absolutePath",
+          "default": "/opt/urd",
+          "description": "Root-owned directory for generated Compose, schema, state-adjacent data, and secret files."
+        },
+        "desktop_user": {
+          "$ref": "#/$defs/linuxUsername"
+        },
+        "create_user": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "desktop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "environment",
+        "display_server",
+        "display_manager",
+        "session",
+        "install_recommends"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "environment": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "xfce",
+            "gnome",
+            "kde",
+            "mate",
+            "cinnamon",
+            "lxqt",
+            "lxde",
+            "none",
+            "custom"
+          ],
+          "default": "xfce"
+        },
+        "display_server": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "x11",
+            "wayland",
+            "headless"
+          ],
+          "default": "x11"
+        },
+        "display_manager": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "none",
+            "gdm",
+            "sddm",
+            "lightdm",
+            "lxdm",
+            "xdm",
+            "custom"
+          ],
+          "default": "none"
+        },
+        "session": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "xfce",
+            "gnome",
+            "gnome-classic",
+            "plasma-x11",
+            "plasma-wayland",
+            "mate",
+            "cinnamon",
+            "lxqt",
+            "lxde",
+            "custom"
+          ],
+          "default": "xfce"
+        },
+        "session_command": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/commandArgument"
+          }
+        },
+        "install_recommends": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "environment": {
+                "const": "custom"
+              }
+            },
+            "required": [
+              "environment"
+            ]
+          },
+          "then": {
+            "required": [
+              "session_command"
+            ]
+          }
+        }
+      ]
+    },
+    "vnc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "implementation",
+        "mode",
+        "bind_address",
+        "port",
+        "display_number",
+        "geometry",
+        "depth",
+        "authentication",
+        "service_scope",
+        "view_only"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "implementation": {
+          "type": "string",
+          "enum": [
+            "tigervnc",
+            "tightvnc",
+            "x11vnc",
+            "wayvnc",
+            "external",
+            "custom"
+          ],
+          "default": "tigervnc"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "virtual-session",
+            "existing-session",
+            "wayland-session",
+            "external",
+            "custom"
+          ],
+          "default": "virtual-session"
+        },
+        "bind_address": {
+          "$ref": "#/$defs/ipAddress",
+          "default": "127.0.0.1"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 5901
+        },
+        "display_number": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99,
+          "default": 1
+        },
+        "geometry": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{2,4}x[1-9][0-9]{2,4}$",
+          "default": "1920x1080"
+        },
+        "depth": {
+          "type": "integer",
+          "enum": [
+            16,
+            24,
+            30,
+            32
+          ],
+          "default": 24
+        },
+        "authentication": {
+          "type": "string",
+          "enum": [
+            "password",
+            "system",
+            "none",
+            "custom"
+          ],
+          "default": "password"
+        },
+        "password_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "host": {
+          "$ref": "#/$defs/hostOrAddress"
+        },
+        "shared_display": {
+          "type": "string",
+          "pattern": "^:[0-9]{1,2}(?:\\.[0-9]+)?$",
+          "default": ":0"
+        },
+        "server_command": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/commandArgument"
+          }
+        },
+        "service_scope": {
+          "type": "string",
+          "enum": [
+            "system",
+            "user",
+            "session",
+            "manual"
+          ],
+          "default": "system"
+        },
+        "view_only": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "authentication": {
+                "const": "password"
+              },
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "authentication",
+              "enabled"
+            ]
+          },
+          "then": {
+            "required": [
+              "password_file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "implementation": {
+                "enum": [
+                  "tigervnc",
+                  "tightvnc"
+                ]
+              }
+            },
+            "required": [
+              "implementation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "const": "virtual-session"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "implementation": {
+                "const": "x11vnc"
+              }
+            },
+            "required": [
+              "implementation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "const": "existing-session"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "implementation": {
+                "const": "wayvnc"
+              }
+            },
+            "required": [
+              "implementation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "const": "wayland-session"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "implementation": {
+                "const": "external"
+              }
+            },
+            "required": [
+              "implementation"
+            ]
+          },
+          "then": {
+            "required": [
+              "host"
+            ],
+            "properties": {
+              "mode": {
+                "const": "external"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "implementation": {
+                "const": "custom"
+              }
+            },
+            "required": [
+              "implementation"
+            ]
+          },
+          "then": {
+            "required": [
+              "server_command"
+            ],
+            "properties": {
+              "mode": {
+                "const": "custom"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "guacamole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "version",
+        "deployment",
+        "web_bind_address",
+        "web_port",
+        "guacd_bind_address",
+        "guacd_port",
+        "context_path",
+        "admin_user",
+        "extensions",
+        "log_level",
+        "image_pull_policy"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "version": {
+          "const": "1.6.0",
+          "default": "1.6.0"
+        },
+        "deployment": {
+          "type": "string",
+          "enum": [
+            "compose",
+            "native",
+            "external",
+            "none"
+          ],
+          "default": "compose"
+        },
+        "web_bind_address": {
+          "$ref": "#/$defs/ipAddress",
+          "default": "127.0.0.1"
+        },
+        "web_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 8080
+        },
+        "guacd_bind_address": {
+          "$ref": "#/$defs/ipAddress",
+          "default": "127.0.0.1"
+        },
+        "guacd_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 4822
+        },
+        "context_path": {
+          "$ref": "#/$defs/contextPath",
+          "default": "/guacamole/"
+        },
+        "admin_user": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\r\\n\\u0000]+$",
+          "default": "guacadmin"
+        },
+        "admin_password_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "extensions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "jdbc-postgresql",
+              "jdbc-mariadb",
+              "jdbc-mysql",
+              "ldap",
+              "openid",
+              "saml",
+              "totp",
+              "vault",
+              "restrict",
+              "ban",
+              "history-recording",
+              "quickconnect",
+              "json"
+            ]
+          },
+          "default": [
+            "jdbc-postgresql"
+          ]
+        },
+        "log_level": {
+          "type": "string",
+          "enum": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "default": "info"
+        },
+        "image_pull_policy": {
+          "type": "string",
+          "enum": [
+            "if-not-present",
+            "always",
+            "never"
+          ],
+          "default": "if-not-present"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "deployment": {
+                "enum": [
+                  "compose",
+                  "native"
+                ]
+              }
+            },
+            "required": [
+              "enabled",
+              "deployment"
+            ]
+          },
+          "then": {
+            "required": [
+              "admin_password_file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          },
+          "then": {
+            "properties": {
+              "deployment": {
+                "const": "none"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engine",
+        "deployment",
+        "ssl_mode",
+        "expose_to_host",
+        "backup"
+      ],
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": [
+            "postgresql",
+            "mariadb",
+            "mysql",
+            "none"
+          ],
+          "default": "postgresql"
+        },
+        "deployment": {
+          "type": "string",
+          "enum": [
+            "compose",
+            "native",
+            "external",
+            "none"
+          ],
+          "default": "compose"
+        },
+        "image": {
+          "$ref": "#/$defs/ociImageReference",
+          "default": "postgres:16-alpine"
+        },
+        "host": {
+          "$ref": "#/$defs/hostOrAddress"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "name": {
+          "$ref": "#/$defs/databaseIdentifier"
+        },
+        "username": {
+          "$ref": "#/$defs/databaseIdentifier"
+        },
+        "password_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "ssl_mode": {
+          "type": "string",
+          "enum": [
+            "disable",
+            "prefer",
+            "require",
+            "verify-ca",
+            "verify-full"
+          ],
+          "default": "disable"
+        },
+        "ca_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "expose_to_host": {
+          "type": "boolean",
+          "default": false
+        },
+        "backup": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "engine": {
+                "const": "none"
+              }
+            },
+            "required": [
+              "engine"
+            ]
+          },
+          "then": {
+            "properties": {
+              "deployment": {
+                "const": "none"
+              }
+            }
+          },
+          "else": {
+            "required": [
+              "host",
+              "port",
+              "name",
+              "username",
+              "password_file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ssl_mode": {
+                "enum": [
+                  "verify-ca",
+                  "verify-full"
+                ]
+              }
+            },
+            "required": [
+              "ssl_mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "ca_file"
+            ]
+          }
+        }
+      ]
+    },
+    "proxy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "deployment",
+        "listen_address",
+        "http_port",
+        "https_port",
+        "domain",
+        "context_path",
+        "preserve_existing",
+        "trust_forwarded_headers",
+        "trusted_proxy_cidrs",
+        "websocket"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "nginx",
+            "apache",
+            "caddy",
+            "traefik",
+            "none",
+            "external"
+          ],
+          "default": "nginx"
+        },
+        "deployment": {
+          "type": "string",
+          "enum": [
+            "native",
+            "compose",
+            "external",
+            "none"
+          ],
+          "default": "native"
+        },
+        "listen_address": {
+          "$ref": "#/$defs/ipAddress",
+          "default": "127.0.0.1"
+        },
+        "http_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 80
+        },
+        "https_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 443
+        },
+        "domain": {
+          "type": "string",
+          "format": "hostname",
+          "default": "localhost"
+        },
+        "context_path": {
+          "$ref": "#/$defs/contextPath",
+          "default": "/guacamole/"
+        },
+        "preserve_existing": {
+          "type": "boolean",
+          "const": true,
+          "default": true
+        },
+        "trust_forwarded_headers": {
+          "type": "boolean",
+          "default": false
+        },
+        "trusted_proxy_cidrs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/cidr"
+          },
+          "default": []
+        },
+        "websocket": {
+          "type": "boolean",
+          "const": true,
+          "default": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "provider": {
+                "const": "none"
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "deployment": {
+                "const": "none"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "provider": {
+                "const": "external"
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "deployment": {
+                "const": "external"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "trust_forwarded_headers": {
+                "const": true
+              }
+            },
+            "required": [
+              "trust_forwarded_headers"
+            ]
+          },
+          "then": {
+            "properties": {
+              "trusted_proxy_cidrs": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "domains",
+        "agree_to_terms",
+        "acme_environment",
+        "redirect_http",
+        "hsts"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "off",
+            "acme-http-01",
+            "acme-dns-01",
+            "existing",
+            "self-signed",
+            "external"
+          ],
+          "default": "off"
+        },
+        "domains": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "hostname"
+          },
+          "default": []
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "agree_to_terms": {
+          "type": "boolean",
+          "default": false
+        },
+        "acme_environment": {
+          "type": "string",
+          "enum": [
+            "staging",
+            "production"
+          ],
+          "default": "staging"
+        },
+        "dns_provider": {
+          "type": "string",
+          "enum": [
+            "cloudflare",
+            "route53",
+            "rfc2136",
+            "digitalocean",
+            "manual",
+            "custom"
+          ]
+        },
+        "credentials_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "certificate_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "private_key_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "chain_file": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "redirect_http": {
+          "type": "boolean",
+          "default": false
+        },
+        "hsts": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "acme-http-01",
+                  "acme-dns-01"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "email"
+            ],
+            "properties": {
+              "domains": {
+                "minItems": 1
+              },
+              "agree_to_terms": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "acme-dns-01"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "dns_provider",
+              "credentials_file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "existing"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "certificate_file",
+              "private_key_file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "self-signed"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "domains": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "off"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "redirect_http": {
+                "const": false
+              },
+              "hsts": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "firewall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "provider",
+        "allow_http",
+        "allow_https",
+        "allow_ssh",
+        "allow_vnc",
+        "ssh_port",
+        "source_cidrs",
+        "persist"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "report-only",
+            "managed"
+          ],
+          "default": "none",
+          "description": "none and report-only never mutate firewall state."
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "ufw",
+            "firewalld",
+            "nftables",
+            "iptables",
+            "none",
+            "custom"
+          ],
+          "default": "auto"
+        },
+        "allow_http": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_https": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_ssh": {
+          "type": "boolean",
+          "default": true
+        },
+        "allow_vnc": {
+          "type": "boolean",
+          "default": false
+        },
+        "ssh_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 22
+        },
+        "source_cidrs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/cidr"
+          },
+          "default": []
+        },
+        "persist": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audio",
+        "clipboard",
+        "file_transfer",
+        "printing",
+        "session_recording",
+        "browser",
+        "vscode",
+        "korean_input",
+        "korean_fonts",
+        "totp",
+        "sso"
+      ],
+      "properties": {
+        "audio": {
+          "type": "boolean",
+          "default": false
+        },
+        "clipboard": {
+          "type": "boolean",
+          "default": false
+        },
+        "file_transfer": {
+          "type": "boolean",
+          "default": false
+        },
+        "printing": {
+          "type": "boolean",
+          "default": false
+        },
+        "session_recording": {
+          "type": "boolean",
+          "default": false
+        },
+        "browser": {
+          "type": "boolean",
+          "default": false
+        },
+        "vscode": {
+          "type": "boolean",
+          "default": false
+        },
+        "korean_input": {
+          "type": "boolean",
+          "default": false
+        },
+        "korean_fonts": {
+          "type": "boolean",
+          "default": false
+        },
+        "totp": {
+          "type": "boolean",
+          "default": false
+        },
+        "sso": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "custom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "packages",
+        "services",
+        "desktop_session_command"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "provider_directory": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "packages": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "desktop",
+            "vnc",
+            "guacamole",
+            "database",
+            "proxy"
+          ],
+          "properties": {
+            "desktop": {
+              "$ref": "#/$defs/packageList"
+            },
+            "vnc": {
+              "$ref": "#/$defs/packageList"
+            },
+            "guacamole": {
+              "$ref": "#/$defs/packageList"
+            },
+            "database": {
+              "$ref": "#/$defs/packageList"
+            },
+            "proxy": {
+              "$ref": "#/$defs/packageList"
+            }
+          }
+        },
+        "services": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vnc": {
+              "$ref": "#/$defs/serviceName"
+            },
+            "guacd": {
+              "$ref": "#/$defs/serviceName"
+            },
+            "guacamole": {
+              "$ref": "#/$defs/serviceName"
+            },
+            "database": {
+              "$ref": "#/$defs/serviceName"
+            },
+            "proxy": {
+              "$ref": "#/$defs/serviceName"
+            }
+          }
+        },
+        "desktop_session_command": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/commandArgument"
+          },
+          "default": []
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          },
+          "then": {
+            "required": [
+              "provider_directory"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "hybrid"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "guacamole": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "deployment": {
+                "const": "compose"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "native"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "guacamole": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "deployment": {
+                "const": "native"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "vnc-only"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "guacamole": {
+            "properties": {
+              "enabled": {
+                "const": false
+              },
+              "deployment": {
+                "const": "none"
+              }
+            }
+          },
+          "database": {
+            "properties": {
+              "engine": {
+                "const": "none"
+              },
+              "deployment": {
+                "const": "none"
+              }
+            }
+          },
+          "proxy": {
+            "properties": {
+              "provider": {
+                "const": "none"
+              },
+              "deployment": {
+                "const": "none"
+              }
+            }
+          },
+          "tls": {
+            "properties": {
+              "mode": {
+                "const": "off"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "external"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "guacamole": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "deployment": {
+                "const": "external"
+              }
+            }
+          },
+          "database": {
+            "properties": {
+              "engine": {
+                "const": "none"
+              },
+              "deployment": {
+                "const": "none"
+              }
+            }
+          },
+          "proxy": {
+            "properties": {
+              "provider": {
+                "enum": [
+                  "external",
+                  "none"
+                ]
+              }
+            }
+          },
+          "tls": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "external",
+                  "off"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "absolutePath": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 4096,
+      "pattern": "^/[^\\r\\n\\u0000]*$"
+    },
+    "cidr": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?:(?:[0-9]{1,3}\\.){3}[0-9]{1,3}/(?:[0-9]|[12][0-9]|3[0-2])|[0-9A-Fa-f:]+/(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-8]))$"
+    },
+    "commandArgument": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^\\r\\n\\u0000]+$"
+    },
+    "contextPath": {
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "^/(?:[A-Za-z0-9._~-]+/)*$"
+    },
+    "databaseIdentifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 63,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+    },
+    "hostOrAddress": {
+      "type": "string",
+      "anyOf": [
+        {
+          "format": "hostname"
+        },
+        {
+          "format": "ipv4"
+        },
+        {
+          "format": "ipv6"
+        }
+      ]
+    },
+    "ipAddress": {
+      "type": "string",
+      "anyOf": [
+        {
+          "format": "ipv4"
+        },
+        {
+          "format": "ipv6"
+        }
+      ]
+    },
+    "linuxUsername": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+    },
+    "ociImageReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@-]*$"
+    },
+    "packageList": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 128,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9+_.:@/-]*$"
+      },
+      "default": []
+    },
+    "serviceName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.@-]+$"
+    }
+  }
+}
