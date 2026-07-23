@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-remote-desktop-installer"
+version = "2.0.0"
+description = "Provider-based Linux desktop, VNC and Apache Guacamole installer"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{name = "TigerVNC-Guacamole-Installer contributors"}]
+dependencies = []
+
+[project.scripts]
+urd-install = "urd_installer.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/urd-installer" = ["schemas/config-v1.schema.json", "versions/lock.json"]
