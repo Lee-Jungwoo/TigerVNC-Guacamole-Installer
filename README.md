@@ -1,5 +1,12 @@
 # Universal Remote Desktop Installer
 
+## 이 레포의 두 단계
+- **원본 (직접 작성)**: ARM 기반 Ubuntu 22.04에서만 동작하는 Bash 설치 스크립트.
+  공군 복무 중 설치가 막힌 PC 대신 클라우드 서버에 TigerVNC + Apache Guacamole
+  원격 데스크톱을 세우려고 만들었습니다. → [원본 보기](https://github.com/Lee-Jungwoo/TigerVNC-Guacamole-Installer/tree/v0-original-bash)
+- **확장 (AI 코딩 도구로 작업)**: 2026.07, 여러 리눅스 배포판을 지원하는 Python CLI
+  (detect/plan/apply/verify)로 확장했습니다. 이 확장 부분은 AI 코딩 도구가 구현했습니다.
+
 Linux 데스크톱, VNC 서버, Apache Guacamole를 하나의 고정된 Ubuntu 스크립트가
 아니라 **감지 + provider + compatibility validation + plan/apply/verify** 방식으로
 구성하는 설치기입니다.
