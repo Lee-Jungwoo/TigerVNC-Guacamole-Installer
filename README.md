@@ -22,8 +22,8 @@ Ubuntu 22.04에서 Apache Guacamole, TigerVNC, XFCE 기반 원격 데스크톱 �
 ## Installation
 
 ```bash
-# 1. Download (또는 git clone https://github.com/Lee-Jungwoo/Guacamole-setup.git)
-wget -L https://raw.github.com/lee-jungwoo/Guacamole-setup/main/init.sh
+# 1. Download (또는 git clone https://github.com/Lee-Jungwoo/TigerVNC-Guacamole-Installer.git)
+wget -L https://raw.githubusercontent.com/Lee-Jungwoo/TigerVNC-Guacamole-Installer/main/init.sh
 
 # 2. Make executable (필요하면 sudo 사용)
 chmod +x init.sh
